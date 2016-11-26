@@ -1,8 +1,18 @@
-'''
-Created on 25.11.2016
+import github as gh
+import sys
+sys.path.append("./PyGithub");
 
-@author: jon
-'''
+print(gh)
+print(gh.__name__)
 
-if __name__ == '__main__':
-    pass
+eclipse_workspace = r"C:\NeonWorkspace"
+
+# Authenticate to github.com and create PyGithub "Github" object
+#username = raw_input("Github Username:")
+#pw = gh.getpass()
+pw = "laughdoor1"
+g = gh.Github("MarcusJones", pw)
+
+for repo in g.get_user().get_repos():
+    print('{:30} {:40} Fork: {:10}'.format(repo.name, repo.owner.__repr__(), repo.fork))
+
