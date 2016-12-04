@@ -10,7 +10,10 @@ eclipse_workspace = r"C:\NeonWorkspace"
 # Authenticate to github.com and create PyGithub "Github" object
 #username = raw_input("Github Username:")
 #pw = gh.getpass()
-pw = "laughdoor1"
+
+
+pw = ""
+pw = input("Pass: ")
 g = gh.Github("MarcusJones", pw)
 
 for repo in g.get_user().get_repos():
