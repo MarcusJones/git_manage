@@ -1,0 +1,10 @@
+					On CES Laptop
+Old_Python			ECLIPSE
+py_ExergyUtilities	ECLIPSE
+py)RevitAPI			ECLIPSE
+py_EnergyParser		ECLIPSE
+py+LEED_IDF_ESO		ECLIPSE
+parse-eso			a
+py_ExergyFrame		ECLIPSE
+ref_energyDB		EXPLORER
+util_ManageGitRepos	ECLIPSE
