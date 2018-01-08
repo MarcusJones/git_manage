@@ -1,9 +1,12 @@
 import github as gh
+print(gh.__file__)
 import sys
 sys.path.append("./PyGithub");
 # Logging
 import logging
 logging.basicConfig(level=logging.INFO)
+
+import ExergyUtilities.util_pretty_print as util_pp
 
 def logg(this_string, this_item):
     logging.info(this_string+"{}".format(this_item.__str__()))
@@ -51,8 +54,11 @@ def get_sha_for_tag(repository, tag):
 username = ""
 password = ""
 
-username = input("User: ")
-password = input("Pass: ")
+#username = input("User: ")
+#password = input("Pass: ")
+
+username = "MarcusJones"
+password = "laughdoor1"
 
 github = gh.Github(username, password)
 logg("Gitub instance:",github)
@@ -64,32 +70,46 @@ organization = github.get_user().get_orgs()[0]
 logg("Gitub organization:",organization)
 #logging.info()
 
-g = gh.Github("MarcusJones", password)
+g = gh.Github(username, password)
 
 logg("Gitub login:",g)
 
 logg("Gitub user:",g.get_user())
 
+
+list_repos = list()
 for repo in g.get_user().get_repos():
-    print('{:30} {:40} Fork: {:10}'.format(repo.name, repo.owner.__repr__(), repo.fork))
+    this_repo_dict = dict()
+    #print('{:30} {:40} Fork: {:10}'.format(repo.name, repo.owner.__repr__(), repo.fork))
+    this_repo_dict['repo'] = repo
+    this_repo_dict['name'] = repo.name
+    this_repo_dict['owner'] = repo.owner.name
+    this_repo_dict['fork'] = repo.fork
+    list_repos.append(this_repo_dict)
     #for i in dir(repo):
     #    print(i)
     #raise
 
+util_pp.print_table_dicts(list_repos)
+
+notforked_repo_list = [repo for repo in list_repos if not repo['fork'] ]
+
+my_repo_list = [repo for repo in notforked_repo_list if repo['owner'] == None]
+
+print("My repos")
+util_pp.print_table_dicts(my_repo_list)
 
 
+#repository_name = "Old_Python" 
 
-repository_name = "Old_Python" 
+#this_repo = g.get_user().get_repo(repository_name)
 
-this_repo = g.get_user().get_repo(repository_name)
 
-print(this_repo)
+#owner = this_repo.owner
+#print(owner)
 
-owner = this_repo.owner
-print(owner)
-
-for i in dir(repo):
-    print(i)
+#for i in dir(repo):
+#    print(i)
 
 #
 # 

@@ -3,6 +3,7 @@
 	<name>git_manage3</name>
 	<comment></comment>
 	<projects>
+		<project>py_ExergyUtilities</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
