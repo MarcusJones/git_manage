@@ -229,7 +229,7 @@ comments = [c for c in c.get_comments()]
 if __name__ == "__main__":
     print("asdf")
     list_repos = get_all_repos
-    username = ""
+    username = "MarcusJones"
     password = ""
     #username = input("User: ")
     password = input("Pass: ")

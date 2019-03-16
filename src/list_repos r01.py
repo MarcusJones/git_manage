@@ -28,10 +28,15 @@ logging.debug("Logging started")
 
 logging.getLogger("github.Requester").setLevel(logging.WARNING)
 
+# Disable NaturalNameWarning
+import warnings
+import tables
+warnings.filterwarnings('ignore', category=tables.NaturalNameWarning)
+
 #%% Paths
 
 PATH_SAVE = r"/home/batman/git/util_ManageGitRepos/saved"
-
+PATH_SAVE = r"/home/batman/TEMP SAVE OCEAN GIT"
 #%% Functions
 def get_sha_for_tag(repository, tag):
     """
@@ -80,15 +85,62 @@ def print_repos(owner=None):
     util_pp.print_table_dicts(my_repo_list)
 
 
+
 def get_commits(branch_object):
-    
+    messages = list()
     b_commits = [c for c in this_repo.get_commits(b.name)]
     for j,c in enumerate(b_commits):
+        cdict = dict()
         if c.author:
-            messages.append((j,c.author.login,c.commit.message))
-    branch_df = pd.DataFrame(messages, columns=['num','author', 'message'])
-    logging.debug("Branch {:2}: {}, {} commits".format(i, b.name, len(b_commits)))
+            cdict['author'] = c.author.login
+            cdict['message'] = c.commit.message
+            cdict['date'] = c.commit.last_modified
+            cdict = {**cdict, **c.stats.raw_data}
+            messages.append((cdict))
+    branch_df = pd.DataFrame(messages)
     return branch_df
+
+
+#%% API
+#branch_object=b
+#dir(c.commit)
+#c.commit.last_modified
+#dir(c.stats)
+#stats_dict = c.stats.raw_data
+#c.stats.additions.bit_length()
+#c.stats.deletions.bit_length()
+#dir(c)
+#for s in c.stats:    print(s)
+#c.author
+dir(b)
+dir(this_repo)
+
+# Get contributors
+res = this_repo.get_stats_contributors()
+for i in res: print(i.author.name, i.total, len(i.weeks))
+
+dir(i)
+i.author
+i.total
+dir(i.weeks[0])
+
+
+
+
+# Get last year of activity (list of 52 weeks)
+res = this_repo.get_stats_commit_activity()
+
+
+# Get all open PRs
+for i in this_repo.get_pulls(): print(i)
+
+# Get punchcard
+res = this_repo.get_stats_punch_card()
+#dir(res)
+# Raw data: 168 hours of the week. [daynum, hournum, numcommits]
+raw1 = res.raw_data
+
+
 
 #%% Login
 username = ""
@@ -115,22 +167,28 @@ if 0:
 ocean_org = g_login.get_organization("oceanprotocol")
 ocean_repos = ocean_org.get_repos()
 ocean_repos_dict = {r.name : r for r in ocean_repos}
+ocean_repos_dict_SMALL = {k: ocean_repos_dict[k] for k in ("keeper-contracts","dev-ocean")}
 
+#%% Ocean Repos
+for this_repo_name,this_repo in ocean_repos_dict_SMALL.items():
+    logging.debug("Fetching repo {}".format(this_repo_name))
+    
+    # Iterate branches
+    for i,b in enumerate(this_repo.get_branches()):
+        branch_df = get_commits(b)
+        save_path = os.path.join(PATH_SAVE,this_repo_name,b.name+".csv")
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
-#%%
+        #branch_df.to_hdf(save_path,b.name)
+        branch_df.to_csv(save_path)
+        logging.debug("\tBranch {:2}: {}, {} commits, saved".format(i, b.name, len(branch_df)))
 
-r_subset = ["keeper-contracts","dev-ocean"]
-
-#dir(b)
-#get_commits(b)
 
 #%% 
-#logging.debug("Ocean repos:".format())
-
-#for i,k in enumerate(ocean_repos):
-#    print(i,k)
-#        messages = list()
-
+this_repo.stats
+dir(this_repo)
+this_repo.stargazers_count
+this_repo.watchers_count
 #%%
     
 res = this_repo.get_stats_contributors()
@@ -140,54 +198,6 @@ for stat in this_repo.get_stats_contributors():
     for week in stat.weeks:
         date = str(week.w)
         date = date[:10]
-#%% Ocean Repos
-for r_name in r_subset:
-    #organization_df['repo']
-    this_repo = ocean_repos[r_name]['repo']
-    if r_name not in r_subset:
-        continue
-    
-    logging.debug("Fetching repo {}".format(this_repo.name))
-    repo_df = pd.DataFrame()
-    
-    for i,b in enumerate(this_repo.get_branches()):
-        #print(b.name)
-        #b_commits = [c for c in this_repo.get_commits(b.name)]
-        #c = b_commits[0]
-        #messages = list()
-        #for j,c in enumerate(b_commits):
-        #    if c.author:
-        #        messages.append((j,c.author.login,c.commit.message))
-        #messages = [ for c in b_commits if c]
-        
-        #branch_df = pd.DataFrame(messages, columns=['num','author', 'message'])
-        #branch_df['branch'] = b.name
-        #ranking = df['author'].value_counts()[0:3]
-        #ranking_str = ["{}: {}".format(*t) for t in ranking.iteritems()]
-        #logging.debug("Branch {:2}: {}, {} commits".format(i, b.name, len(b_commits)))
-        #logging.debug("{}".format(", ".join(ranking_str)))
-        #df['repo'] = this_repo.name
-        branch_df = get_commits(b)
-        #repo_df = repo_df.append(branch_df)
-        
-        logging.debug("Appended {} rows, {} total".format(len(branch_df),len(repo_df)))
-    repo_df['repo'] = this_repo.name
-    repo_df.reset_index(inplace = True, drop=True)
-    #masterranking = repo_df['author'].value_counts()[0:3]
-    #logging.debug("Overall commits for this repo: {}".format(", ".join(ranking_str)))
-    logging.debug("Finished collecting {} commits over {} branches from {}".format(len(repo_df),i+1,this_repo.name))
-    
-    repo_fname = "{} {}.hdf".format(datetime.date.today().strftime("%Y%m%d"), this_repo.name)
-    repo_out_path = os.path.join(PATH_SAVE,repo_fname)
-    repo_df.to_hdf(repo_out_path,this_repo.name)
-    logging.debug("saved to  {}".format(repo_out_path))
-    #organization_df = organization_df.append(repo_df)
-
-
-#%% 
-
-
-
 #%%
 for r in organization_df['repo'].unique():
     print(r)
@@ -229,7 +239,7 @@ comments = [c for c in c.get_comments()]
 if __name__ == "__main__":
     print("asdf")
     list_repos = get_all_repos
-    username = ""
+    username = "MarcusJones"
     password = ""
     #username = input("User: ")
     password = input("Pass: ")
