@@ -6,6 +6,7 @@ authors = ["MarcusJones <jones.0bj3@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.6"
+PyGithub = "^1.53"
 
 [tool.poetry.dev-dependencies]
 

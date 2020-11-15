@@ -2,7 +2,6 @@
 import sys
 import os
 import github as gh
-import ExergyUtilities.util_pretty_print as util_pp
 import pandas as pd
 
 
