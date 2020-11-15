@@ -9,6 +9,7 @@ python = "^3.6.1"
 PyGithub = "^1.53"
 pandas = "^1.1.4"
 tables = "^3.6.1"
+python-dotenv = "^0.15.0"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.6.0"

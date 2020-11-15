@@ -3,9 +3,13 @@ import sys
 import os
 import github as gh
 import pandas as pd
-
-
+import warnings
+import tables
+from dotenv import load_dotenv
 import datetime
+from pprint import pprint
+
+
 #%% Logging
 import logging
 logger = logging.getLogger()
@@ -24,15 +28,11 @@ handler = logging.StreamHandler(sys.stderr)
 handler.setFormatter(formatter)
 logger.handlers = [handler]
 logging.debug("Logging started")
-
 logging.getLogger("github.Requester").setLevel(logging.WARNING)
-
-# Disable NaturalNameWarning
-import warnings
-import tables
 warnings.filterwarnings('ignore', category=tables.NaturalNameWarning)
 
 #%% Paths
+load_dotenv()
 
 PATH_SAVE = r"/home/batman/git/util_ManageGitRepos/saved"
 PATH_SAVE = r"/home/batman/TEMP SAVE OCEAN GIT"
@@ -99,6 +99,12 @@ def get_commits(branch_object):
     branch_df = pd.DataFrame(messages)
     return branch_df
 
+#%%
+token = os.getenv('GH_API_TOKEN')
+g = gh.Github(token)
+repo = g.get_repo("MartinHeinz/python-project-blueprint")
+issues = repo.get_issues(state="open")
+pprint(issues.get_page(0))
 
 #%% API
 #branch_object=b
@@ -171,7 +177,7 @@ ocean_repos_dict_SMALL = {k: ocean_repos_dict[k] for k in ("keeper-contracts","d
 #%% Ocean Repos
 for this_repo_name,this_repo in ocean_repos_dict_SMALL.items():
     logging.debug("Fetching repo {}".format(this_repo_name))
-    
+
     # Iterate branches
     for i,b in enumerate(this_repo.get_branches()):
         branch_df = get_commits(b)
@@ -183,13 +189,13 @@ for this_repo_name,this_repo in ocean_repos_dict_SMALL.items():
         logging.debug("\tBranch {:2}: {}, {} commits, saved".format(i, b.name, len(branch_df)))
 
 
-#%% 
+#%%
 this_repo.stats
 dir(this_repo)
 this_repo.stargazers_count
 this_repo.watchers_count
 #%%
-    
+
 res = this_repo.get_stats_contributors()
 for stat in this_repo.get_stats_contributors():
     author = str(stat.author)
@@ -212,7 +218,7 @@ for r in organization_df['repo'].unique():
 #b_commits[799].comments_url
 #r.get_commits(b.name)
 
-#%% 
+#%%
 organization_df.to_csv("commits.csv")
 
 #%% Hacking
@@ -242,29 +248,29 @@ if __name__ == "__main__":
     password = ""
     #username = input("User: ")
     password = input("Pass: ")
-    
-    
+
+
     github = gh.Github(username, password)
     logg("Github instance:",github)
-        
+
     #print(github)
-    
+
     organization = github.get_user().get_orgs()[0]
     #print(organization)
     logg("Github organization:",organization)
     #logging.info()
-    
+
     g = gh.Github(username, password)
-    
+
     logg("Github login:",g)
-    
+
     logg("Github user:",g.get_user())
 
 
 
 
 #%% OLD
-#repository_name = "Old_Python" 
+#repository_name = "Old_Python"
 
 #this_repo = g.get_user().get_repo(repository_name)
 
@@ -276,11 +282,11 @@ if __name__ == "__main__":
 #    print(i)
 
 #
-# 
-# 
+#
+#
 # repository_name = input("Github repository: ")
 # repository = organization.get_repo(repository_name)
-# 
+#
 # branch_or_tag_to_download = input("Branch or tag to download: ")
 # sha = get_sha_for_tag(repository, branch_or_tag_to_download)
 
@@ -290,11 +296,11 @@ if __name__ == "__main__":
 
 # def download_directory(repository, sha, server_path):
 #     """
-#     Download all contents at server_path with commit tag sha in 
+#     Download all contents at server_path with commit tag sha in
 #     the repository.
 #     """
 #     contents = repository.get_dir_contents(server_path, ref=sha)
-# 
+#
 #     for content in contents:
 #         print("Processing {}".format(content.path))
 #         if content.type == 'dir':
