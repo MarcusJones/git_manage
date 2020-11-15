@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "util_managegitrepos"
+version = "0.1.0"
+description = "Manage Github repos and organizations"
+authors = ["MarcusJones <jones.0bj3@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
